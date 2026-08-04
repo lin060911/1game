@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="32 * 32" href="img/W.png">
+<title>水一把</title>
+<style>
+:root {
+  --bg-dark: #121212;
+  --bg-card: rgba(255, 255, 255, 0.03);
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --border-medium: rgba(255, 255, 255, 0.2);
+
+  --color-success: #00ff88;
+  --color-error: #fd4b4b;
+  --color-warning: #ffda46;
+  --color-neutral: #999999;
+  --color-accent: #3f88fd;
+  --color-text: #ffffff;
+
+  --font-main: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+
+  --gap-sm: 6px;
+  --gap-md: 10px;
+  --gap-lg: 20px;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; font-family:var(--font-main); }
+
+body {
+  min-height:100vh;
+  background:linear-gradient(135deg,#121212,#1e1e1e);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:flex-start;
+  color:var(--color-text);
+  padding:20px 10px;
+  user-select:none;
+  overflow-x:hidden;
+}
+
+.title {
+  font-size:36px; font-weight:700;
+  margin-bottom:6px; color:#f5f5f5;
+  letter-spacing:3px; text-transform:uppercase;
+  text-align:center;
+}
+.subtitle {
+  font-size:14px; color:var(--color-neutral);
+  margin-bottom:20px; letter-spacing:1px;
+}
+
+.test-area {
+  display:flex; flex-direction:column;
+  align-items:center;
+  max-width:960px; width:100%;
+  padding:10px 0;
+}
+
+.game-container {
+  width:860px; max-width:95%;
+  min-height:260px;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:flex-start;
+  border-radius:var(--radius-lg);
+  background:var(--bg-card);
+  border:2px solid var(--border-subtle);
+  box-shadow:0 0 30px rgba(0,0,0,0.7);
+  padding:24px;
+  position:relative;
+}
+
+.flow-tip {
+  font-size:17px; font-weight:600;
+  text-align:center; letter-spacing:1px;
+}
+
+.progress {
+  font-size:16px; color:var(--color-neutral);
+  font-weight:600; text-align:center;
+  min-height:24px; margin:2px 0;
+}
+
+.rule-tip {
+  font-size:14px; color:var(--color-neutral);
+  margin-top:10px; text-align:left;
+  max-width:620px; line-height:1.6;
+}
+
+.result-container {
+  display:flex; flex-direction:column;
+  gap:var(--gap-sm);
+  max-width:600px; width:100%;
+  padding:8px 0; margin-bottom:10px;
+}
+
+.stats-group {
+  background:rgba(255,255,255,0.04);
+  padding:12px 16px;
+  border-radius:var(--radius-md);
+  border:1px solid var(--border-medium);
+  width:100%;
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
+}
+.stats-group-title {
+  font-size:14px; font-weight:700; color:#ccc;
+  margin-bottom:8px; text-align:center;
+  border-bottom:1px solid var(--border-subtle);
+  padding-bottom:4px;
+}
+.stats {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:var(--gap-sm); margin-top:6px; width:100%;
+}
+.stat-item {
+  background:rgba(255,255,255,0.06);
+  padding:10px 8px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--border-medium);
+  text-align:center;
+}
+.stat-label { font-size:13px; color:var(--color-neutral); margin-bottom:5px; }
+.stat-value { font-size:19px; font-weight:700; color:var(--color-success); }
+.stat-value.best { color:var(--color-warning); }
+
+.text-green{color:#00ff88;} .text-red{color:#fd4b4b;}
+.text-yellow{color:#ffda46;} .text-gray{color:#999;}
+.text-blue{color:#3f88fd;} .text-purple{color:#de01de;}
+.text-skyblue{color:#87ceeb;} .text-orange{color:#ffa500;}
+
+.btn {
+  padding:12px 28px; font-size:16px; font-weight:600;
+  border-radius:var(--radius-md);
+  border:3px solid var(--border-medium);
+  cursor:pointer; transition:all 0.2s ease;
+  letter-spacing:1px;
+}
+.btn-primary { background:rgba(63,136,253,0.2); border-color:var(--color-accent); color:var(--color-accent); }
+.btn-primary:hover { background:rgba(63,136,253,0.35); box-shadow:0 0 16px rgba(63,136,253,0.4); }
+.btn-success { background:rgba(0,255,136,0.15); border-color:var(--color-success); color:var(--color-success); }
+.btn-success:hover { background:rgba(0,255,136,0.3); box-shadow:0 0 16px rgba(0,255,136,0.4); }
+.btn-danger { background:rgba(253,75,75,0.15); border-color:var(--color-error); color:var(--color-error); }
+.btn-danger:hover { background:rgba(253,75,75,0.3); box-shadow:0 0 16px rgba(253,75,75,0.4); }
+.btn-warning { background:rgba(255,218,70,0.15); border-color:var(--color-warning); color:var(--color-warning); }
+.btn-warning:hover { background:rgba(255,218,70,0.3); box-shadow:0 0 16px rgba(255,218,70,0.4); }
+.btn-ghost { background:rgba(255,255,255,0.05); border-color:var(--border-medium); color:var(--color-neutral); }
+.btn-ghost:hover { background:rgba(255,255,255,0.1); color:#fff; }
+.btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+.mode-select { display:flex; gap:16px; margin-bottom:20px; flex-wrap:wrap; justify-content:center; }
+.bo-select { display:flex; gap:10px; margin:10px 0; flex-wrap:wrap; justify-content:center; align-items:center; }
+.bo-label { font-size:14px; color:var(--color-neutral); margin-right:6px; }
+.bo-btn {
+  padding:8px 18px; font-size:14px; font-weight:600;
+  border-radius:var(--radius-sm); border:2px solid var(--border-medium);
+  cursor:pointer; background:rgba(255,255,255,0.04);
+  color:var(--color-neutral); transition:all 0.2s;
+}
+.bo-btn.active, .bo-btn:hover {
+  border-color:var(--color-warning); color:var(--color-warning);
+  background:rgba(255,218,70,0.12);
+}
+
+.target-display {
+  font-size:52px; font-weight:800;
+  color:var(--color-warning); text-align:center;
+  margin:8px 0; letter-spacing:2px;
+  text-shadow:0 0 20px rgba(255,218,70,0.3);
+}
+.target-label { font-size:14px; color:var(--color-neutral); text-align:center; margin-bottom:4px; }
+
+.cups-area {
+  display:flex; gap:50px;
+  align-items:flex-end; justify-content:center;
+  flex-wrap:wrap; margin:16px 0;
+}
+.cup-wrapper {
+  display:flex; flex-direction:column;
+  align-items:center; gap:10px;
+}
+.cup-name { font-size:15px; font-weight:700; color:#ccc; letter-spacing:1px; }
+.cup-name.p1 { color:var(--color-accent); }
+.cup-name.p2 { color:var(--color-success); }
+
+.canvas-container { position:relative; }
+canvas {
+  border-radius:var(--radius-md);
+  cursor:pointer;
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--border-subtle);
+  touch-action:none;
+}
+canvas:active { cursor:grabbing; }
+
+.hold-hint {
+  font-size:12px; color:var(--color-neutral);
+  text-align:center; opacity:0.6; letter-spacing:0.5px;
+}
+
+.feedback-text {
+  font-size:18px; font-weight:700;
+  text-align:center; min-height:30px;
+  margin:8px 0; letter-spacing:1px;
+}
+
+.score-board { display:flex; gap:30px; align-items:center; justify-content:center; margin:12px 0; }
+.score-item { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.score-name { font-size:14px; font-weight:600; color:var(--color-neutral); }
+.score-value { font-size:32px; font-weight:800; }
+.score-value.p1-score { color:var(--color-accent); }
+.score-value.p2-score { color:var(--color-success); }
+.score-divider { font-size:24px; color:var(--color-neutral); font-weight:700; }
+
+.round-info { font-size:15px; color:var(--color-warning); font-weight:600; text-align:center; margin:6px 0; letter-spacing:1px; }
+
+.hidden { display:none !important; }
+
+.modal-overlay {
+  position:fixed; top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.75);
+  display:flex; align-items:center; justify-content:center;
+  z-index:100; backdrop-filter:blur(6px);
+}
+.modal-box {
+  background:#1e1e1e;
+  border:2px solid var(--border-medium);
+  border-radius:var(--radius-lg);
+  padding:36px 44px;
+  max-width:480px; width:90%;
+  text-align:center;
+  box-shadow:0 0 40px rgba(0,0,0,0.8);
+  animation:modalIn 0.3s ease-out;
+}
+@keyframes modalIn { from{opacity:0;transform:scale(0.85);} to{opacity:1;transform:scale(1);} }
+.modal-title { font-size:24px; font-weight:800; margin-bottom:16px; color:var(--color-warning); }
+.modal-body { font-size:16px; color:#ddd; line-height:1.8; margin-bottom:20px; }
+.modal-body .highlight { font-size:20px; font-weight:700; }
+.modal-body .p1-color { color:var(--color-accent); }
+.modal-body .p2-color { color:var(--color-success); }
+
+@media (max-width:960px) {
+  .game-container{width:95%;padding:16px;}
+  .title{font-size:26px;} .target-display{font-size:40px;}
+  .cups-area{gap:20px;}
+}
+@media (max-width:640px) {
+  .game-container{padding:12px;} .title{font-size:22px;}
+  .target-display{font-size:34px;} .stats{grid-template-columns:1fr 1fr;}
+  .mode-select{flex-direction:column;align-items:center;} .score-board{gap:16px;}
+}
+</style>
+</head>
+<body>
+
+<div class="title">💧 水一把</div>
+<div class="subtitle">WATER MASTER</div>
+
+<div class="test-area">
+  <div id="modeSelect" class="mode-select">
+    <button class="btn btn-primary" onclick="startSolo()">🎯 单人模式</button>
+    <button class="btn btn-danger" onclick="showBoSelect()">⚔️ 双人Battle</button>
+  </div>
+
+  <div id="boSelect" class="bo-select hidden">
+    <span class="bo-label">选择赛制：</span>
+    <button class="bo-btn" data-bo="1">BO1</button>
+    <button class="bo-btn" data-bo="3">BO3</button>
+    <button class="bo-btn" data-bo="5">BO5</button>
+    <button class="bo-btn" data-bo="7">BO7</button>
+    <button class="bo-btn active" data-bo="-1">♾️无限</button>
+    <button class="btn btn-ghost" style="padding:6px 14px;font-size:13px;" onclick="backToModeSelect()">← 返回</button>
+  </div>
+
+  <div id="gameContainer" class="game-container hidden">
+    <div id="targetLabel" class="target-label hidden">🎯 目标水位</div>
+    <div id="targetDisplay" class="target-display hidden">--%</div>
+
+    <div id="roundInfo" class="round-info hidden"></div>
+
+    <div id="scoreBoard" class="score-board hidden">
+      <div class="score-item">
+        <div class="score-name p1-color">玩家1</div>
+        <div class="score-value p1-score" id="p1Score">0</div>
+      </div>
+      <div class="score-divider">:</div>
+      <div class="score-item">
+        <div class="score-name p2-color">玩家2</div>
+        <div class="score-value p2-score" id="p2Score">0</div>
+      </div>
+    </div>
+
+    <div id="flowTip" class="flow-tip">点击开始按钮进入游戏</div>
+
+    <div id="cupsArea" class="cups-area hidden"></div>
+
+    <div id="feedbackText" class="feedback-text"></div>
+
+    <div id="progressText" class="progress"></div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+      <button id="btnStart" class="btn btn-success" onclick="startRound()">▶ 开始</button>
+      <button id="btnConfirm" class="btn btn-primary hidden" onclick="confirmWater()">✓ 确定</button>
+      <button id="btnNext" class="btn btn-warning hidden" onclick="nextRound()">▶ 下一回合</button>
+      <button id="btnBack" class="btn btn-ghost" onclick="backToModeSelect()">← 返回菜单</button>
+    </div>
+
+    <div id="resultContainer" class="result-container hidden"></div>
+  </div>
+
+  <div id="ruleTip" class="rule-tip">
+    <strong style="color:#ccc;">规则：</strong><br>
+    • <strong>单人模式</strong>：随机生成目标百分比（0%~100%），长按水杯注水，松手锁定，水位只升不降，尽量接近目标后确定<br>
+    • <strong>双人Battle</strong>：两名玩家分别注水，更接近目标者赢得该回合<br>
+    • <strong>操作</strong>：按住鼠标/手指在杯子上不要松开，水位持续上升，松手即停<br>
+    • 超过100%一律视为100%<br>
+    • 评价：误差
+    ≤1% <span class="text-skyblue">S+</span> |
+    ≤3% <span class="text-orange">S</span> |
+    ≤5% <span class="text-purple">A</span> |
+    ≤10% <span class="text-blue">B</span> |
+    ≤20% <span class="text-red">C</span> |
+    >20% <span class="text-gray">D</span>
+  </div>
+</div>
+
+<div id="modalOverlay" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div id="modalTitle" class="modal-title"></div>
+    <div id="modalBody" class="modal-body"></div>
+    <button class="btn btn-primary" onclick="closeModal()">了解</button>
+  </div>
+</div>
+
+<script>
+const state = {
+  mode:'solo', bo:-1, round:0, maxRounds:999,
+  targetPct:0, p1Pct:0, p2Pct:0,
+  p1Score:0, p2Score:0, p1History:[],
+  roundActive:false, fillSpeed:20,
+};
+const $ = id => document.getElementById(id);
+const randInt = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+const clamp   = (v,lo,hi) => Math.max(lo, Math.min(hi, v));
+const pctDiff = (a,b) => Math.abs(a-b);
+
+function showModal(t,h){ $('modalTitle').textContent=t; $('modalBody').innerHTML=h; $('modalOverlay').classList.remove('hidden'); }
+function closeModal(){ $('modalOverlay').classList.add('hidden'); }
+
+function showGame(){ $('modeSelect').classList.add('hidden'); $('boSelect').classList.add('hidden'); $('gameContainer').classList.remove('hidden'); $('ruleTip').classList.add('hidden'); }
+function backToModeSelect(){ $('modeSelect').classList.remove('hidden'); $('boSelect').classList.add('hidden'); $('gameContainer').classList.add('hidden'); $('ruleTip').classList.remove('hidden'); resetGame(); }
+function showBoSelect(){ $('modeSelect').classList.add('hidden'); $('boSelect').classList.remove('hidden'); }
+
+function startSolo(){
+  state.mode='solo'; state.bo=1; state.maxRounds=999;
+  showGame(); initSoloUI();
+  setFlowTip('点击「开始」生成目标水位');
+  $('btnStart').classList.remove('hidden');
+  $('btnConfirm').classList.add('hidden');
+  $('btnNext').classList.add('hidden');
+}
+function startBattle(bo){
+  state.mode='battle'; state.bo=bo; state.maxRounds=bo>0?bo:999;
+  showGame(); initBattleUI();
+  setFlowTip('双人Battle已就绪！点击「开始」生成目标水位');
+  $('btnStart').classList.remove('hidden');
+  $('btnConfirm').classList.add('hidden');
+  $('btnNext').classList.add('hidden');
+}
+document.querySelectorAll('.bo-btn').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.bo-btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    setTimeout(()=>startBattle(parseInt(this.dataset.bo)),200);
+  });
+});
+
+function initSoloUI(){
+  $('targetLabel').classList.add('hidden');
+  $('targetDisplay').classList.add('hidden');
+  $('cupsArea').classList.add('hidden');
+  $('roundInfo').classList.add('hidden');
+  $('scoreBoard').classList.add('hidden');
+  $('resultContainer').classList.add('hidden');
+  $('resultContainer').innerHTML='';
+  $('feedbackText').textContent='';
+  $('progressText').textContent='';
+  state.p1Score=0; state.p1History=[]; state.round=0;
+  buildCups(1);
+}
+function initBattleUI(){
+  $('targetLabel').classList.add('hidden');
+  $('targetDisplay').classList.add('hidden');
+  $('cupsArea').classList.add('hidden');
+  $('roundInfo').classList.add('hidden');
+  $('scoreBoard').classList.add('hidden');
+  $('resultContainer').classList.add('hidden');
+  $('resultContainer').innerHTML='';
+  $('feedbackText').textContent='';
+  $('progressText').textContent='';
+  state.p1Score=0; state.p2Score=0; state.round=0;
+  $('p1Score').textContent='0'; $('p2Score').textContent='0';
+  buildCups(2);
+}
+
+function buildCups(count){
+  const area=$('cupsArea'); area.innerHTML='';
+  for(let i=0;i<count;i++){
+    const p=i+1;
+    const wrap=document.createElement('div');
+    wrap.className='cup-wrapper';
+    wrap.innerHTML=`
+      <div class="cup-name ${p===1?'p1':'p2'}">${count===1?'🥤 你的水杯':`玩家 ${p}`}</div>
+      <div class="canvas-container"><canvas id="canvas_p${p}" width="160" height="260"></canvas></div>
+      <div class="hold-hint">长按注水 ↑</div>`;
+    area.appendChild(wrap);
+  }
+  if(count>=1){ state.p1Pct=0; drawCup('canvas_p1',()=>state.p1Pct); bindCup('canvas_p1',()=>state.p1Pct,v=>{state.p1Pct=v;}); }
+  if(count>=2){ state.p2Pct=0; drawCup('canvas_p2',()=>state.p2Pct); bindCup('canvas_p2',()=>state.p2Pct,v=>{state.p2Pct=v;}); }
+}
+
+function drawCup(canvasId, getPct){
+  const canvas=document.getElementById(canvasId);
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+
+  const padX = 30;
+  const cupW = W - padX*2; 
+  const cupTop = 30;
+  const cupBot = H - 20;  
+  const cupH   = cupBot - cupTop;
+  const leftX  = padX;
+  const rightX = W - padX;
+
+  function draw(){
+    const raw = getPct();
+    const pct = clamp(raw, 0, 100);
+    const overflow = raw > 100;
+
+    ctx.clearRect(0,0,W,H);
+
+    if(pct > 0){
+      const fillH = (pct/100)*cupH;
+      const waterTop = cupBot - fillH;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(leftX, waterTop, cupW, fillH);
+      ctx.clip();
+
+      const g = ctx.createLinearGradient(0, waterTop, 0, cupBot);
+      g.addColorStop(0, 'rgba(0,255,200,0.5)');
+      g.addColorStop(0.4, 'rgba(0,180,255,0.6)');
+      g.addColorStop(1, 'rgba(0,100,200,0.75)');
+      ctx.fillStyle = g;
+      ctx.fillRect(leftX-2, waterTop, cupW+4, fillH+2);
+
+      ctx.beginPath();
+      ctx.moveTo(leftX, waterTop);
+      ctx.lineTo(rightX, waterTop);
+      ctx.strokeStyle = 'rgba(150,230,255,0.6)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      const bc = Math.floor(pct/8);
+      for(let i=0;i<bc;i++){
+        const bx = leftX + cupW*Math.random();
+        const by = waterTop + 4 + Math.random()*fillH*0.85;
+        ctx.beginPath();
+        ctx.arc(bx, by, 1+Math.random()*2, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(200,240,255,${0.15+Math.random()*0.2})`;
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    if(overflow){
+      const extra = clamp(raw-100, 0, 12);
+      const spillY = cupTop - extra*1.8;
+      ctx.beginPath();
+      ctx.ellipse(W/2, spillY, cupW*0.4*(extra/12), 3, 0,0,Math.PI*2);
+      ctx.fillStyle = `rgba(0,200,255,${0.2+extra*0.04})`;
+      ctx.fill();
+    }
+
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+    ctx.lineCap = 'round';
+
+    ctx.beginPath();
+    ctx.moveTo(leftX, cupTop);
+    ctx.lineTo(leftX, cupBot);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(rightX, cupTop);
+    ctx.lineTo(rightX, cupBot);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(leftX, cupBot);
+    ctx.lineTo(rightX, cupBot);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(leftX, cupTop);
+    ctx.lineTo(rightX, cupTop);
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  draw();
+  canvas._redraw = draw;
+}
+
+function bindCup(canvasId, getPct, setPct){
+  const canvas=document.getElementById(canvasId);
+  let holding=false, rafId=null, lastTick=0;
+
+  function startFill(){
+    if(!state.roundActive) return;
+    holding=true; lastTick=performance.now();
+    cancelAnimationFrame(rafId);
+    rafId=requestAnimationFrame(fillLoop);
+  }
+  function fillLoop(now){
+    if(!holding) return;
+    const dt=(now-lastTick)/1000; lastTick=now;
+    let cur=getPct()+state.fillSpeed*dt;
+    cur=Math.min(cur,115);
+    setPct(cur);
+    canvas._redraw();
+    if(holding && cur<115) rafId=requestAnimationFrame(fillLoop);
+    else holding=false;
+  }
+  function stopFill(){ holding=false; cancelAnimationFrame(rafId); }
+
+  canvas.addEventListener('mousedown',startFill);
+  canvas.addEventListener('mouseup',stopFill);
+  canvas.addEventListener('mouseleave',stopFill);
+  canvas.addEventListener('touchstart',e=>{e.preventDefault();startFill();},{passive:false});
+  canvas.addEventListener('touchend',stopFill);
+  canvas.addEventListener('touchcancel',stopFill);
+}
+
+function redrawAll(){ document.querySelectorAll('canvas').forEach(c=>{if(c._redraw)c._redraw();}); }
+
+function startRound(){
+  state.round++;
+  state.targetPct=randInt(0,100);
+  state.p1Pct=0; state.p2Pct=0;
+  state.roundActive=true;
+
+  $('targetLabel').classList.remove('hidden');
+  $('targetDisplay').classList.remove('hidden');
+  $('cupsArea').classList.remove('hidden');
+  $('targetDisplay').textContent=state.targetPct+'%';
+  $('btnStart').classList.add('hidden');
+  $('btnConfirm').classList.remove('hidden');
+  $('btnNext').classList.add('hidden');
+  $('resultContainer').classList.add('hidden');
+  $('resultContainer').innerHTML='';
+  $('feedbackText').textContent='';
+
+  if(state.mode==='solo'){
+    setFlowTip('💧 目标已生成！长按水杯注水，松手锁定，尽量接近目标！');
+    $('progressText').textContent=`第 ${state.round} 回合`;
+  }else{
+    setFlowTip('💧 目标已生成！两名玩家分别长按各自杯子注水，准备好后点击确定。');
+    $('roundInfo').classList.remove('hidden');
+    $('scoreBoard').classList.remove('hidden');
+    $('roundInfo').textContent=state.bo>0?`第 ${state.round}/${state.bo} 回合`:`第 ${state.round} 回合（无限模式）`;
+    $('progressText').textContent='';
+  }
+  redrawAll();
+}
+
+function confirmWater(){
+  if(!state.roundActive) return;
+  state.roundActive=false;
+  const p1=clamp(Math.round(state.p1Pct),0,100);
+  const d1=pctDiff(p1,state.targetPct);
+  if(state.mode==='solo') handleSoloResult(p1,d1);
+  else{
+    const p2=clamp(Math.round(state.p2Pct),0,100);
+    const d2=pctDiff(p2,state.targetPct);
+    handleBattleResult(p1,p2,d1,d2);
+  }
+}
+
+function nextRound(){
+  if(state.mode==='battle'){
+    if(state.round>=state.maxRounds){showBattleFinal();return;}
+  }
+  startRound();
+}
+
+function handleSoloResult(pct,diff){
+  state.p1History.push(diff);
+  const g=getGrade(diff);
+  $('feedbackText').innerHTML=`
+    你的水位：<span class="text-green">${pct}%</span> ·
+    误差：<span class="${g.colorClass}">${diff.toFixed(1)}%</span> ·
+    <span class="${g.colorClass}">${g.label}</span>`;
+  $('resultContainer').classList.add('hidden');
+  $('resultContainer').innerHTML='';
+  $('btnConfirm').classList.add('hidden');
+  $('btnNext').classList.remove('hidden');
+  setFlowTip('点击「下一回合」继续挑战，或返回菜单结束游戏');
+}
+
+function handleBattleResult(v1,v2,d1,d2){
+  let w=0;
+  if(d1<d2){w=1;state.p1Score++;}
+  else if(d2<d1){w=2;state.p2Score++;}
+  $('p1Score').textContent=state.p1Score;
+  $('p2Score').textContent=state.p2Score;
+
+  const c1=d1<=3?'text-green':d1<=10?'text-yellow':'text-red';
+  const c2=d2<=3?'text-green':d2<=10?'text-yellow':'text-red';
+
+  let html=`
+    <div style="margin-bottom:8px;">
+      <span class="p1-color" style="font-weight:700;">玩家1</span>：${v1}%（误差 <span class="${c1}">${d1.toFixed(1)}%</span>）
+      &nbsp;&nbsp;|&nbsp;&nbsp;
+      <span class="p2-color" style="font-weight:700;">玩家2</span>：${v2}%（误差 <span class="${c2}">${d2.toFixed(1)}%</span>）
+    </div>`;
+  if(w===1) html+=`<div class="text-green" style="font-size:18px;font-weight:700;">👍 玩家1 此回合获胜！</div>`;
+  else if(w===2) html+=`<div class="text-green" style="font-size:18px;font-weight:700;">👍 玩家2 此回合获胜！</div>`;
+  else html+=`<div class="text-yellow" style="font-size:18px;font-weight:700;">🤝 此回合平局！</div>`;
+
+  $('feedbackText').innerHTML='';
+  $('resultContainer').classList.remove('hidden');
+  $('resultContainer').innerHTML=`
+    <div class="stats-group">
+      <div class="stats-group-title">⚔️ 本回合结果</div>
+      <div style="text-align:center;line-height:2;">${html}</div>
+      <div class="stats" style="margin-top:10px;">
+        <div class="stat-item"><div class="stat-label">玩家1 胜场</div><div class="stat-value" style="color:var(--color-accent)">${state.p1Score}</div></div>
+        <div class="stat-item"><div class="stat-label">玩家2 胜场</div><div class="stat-value" style="color:var(--color-success)">${state.p2Score}</div></div>
+      </div>
+    </div>`;
+  $('btnConfirm').classList.add('hidden');
+  if(state.round>=state.maxRounds){ $('btnNext').classList.add('hidden'); setTimeout(showBattleFinal,800); }
+  else{ $('btnNext').classList.remove('hidden'); }
+  setFlowTip('点击「下一回合」继续比赛！');
+}
+
+function showBattleFinal(){
+  const a=state.p1Score, b=state.p2Score;
+  let title,body;
+  if(a>b){ title='🎉 玩家1 赢了！'; body=`<div>最终比分：</div><div style="margin:12px 0;"><span class="highlight p1-color">玩家1 ${a}</span>&nbsp;:&nbsp;<span class="highlight p2-color">${b} 玩家2</span></div><div>玩家1 获得了胜利！</div>`; }
+  else if(b>a){ title='🎉 玩家2 赢了！'; body=`<div>最终比分：</div><div style="margin:12px 0;"><span class="highlight p1-color">玩家1 ${a}</span>&nbsp;:&nbsp;<span class="highlight p2-color">${b} 玩家2</span></div><div>玩家2 获得了胜利！</div>`; }
+  else{ title='🤝 平局'; body=`<div>最终比分：</div><div style="margin:12px 0;"><span class="highlight p1-color">玩家1 ${a}</span>&nbsp;:&nbsp;<span class="highlight p2-color">${b} 玩家2</span></div><div>实力相当！势均力敌！</div>`; }
+  showModal(title, body+`<div style="margin-top:16px;"><button class="btn btn-primary" onclick="backToModeSelect();closeModal();">返回</button></div>`);
+  $('btnNext').classList.add('hidden');
+  $('btnStart').classList.remove('hidden');
+}
+
+function getGrade(d){
+  if(d<=1) return{label:'S+',colorClass:'text-skyblue'};
+  if(d<=3) return{label:'S',colorClass:'text-orange'};
+  if(d<=5) return{label:'A',colorClass:'text-purple'};
+  if(d<=10)return{label:'B',colorClass:'text-blue'};
+  if(d<=20)return{label:'C',colorClass:'text-red'};
+  return{label:'D',colorClass:'text-gray'};
+}
+
+function setFlowTip(t){ $('flowTip').textContent=t; }
+function resetGame(){
+  state.round=0; state.p1Score=0; state.p2Score=0;
+  state.p1History=[]; state.roundActive=false;
+  $('p1Score').textContent='0'; $('p2Score').textContent='0';
+}
+</script>
+</body>
+</html>
