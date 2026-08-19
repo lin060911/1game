@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="32x32" href="../img/L.png">
+<title>梯一把</title>
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  .ladder-area {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
+  .ladder-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .ladder-name {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .ladder-name.p1 { color: var(--color-accent); }
+  .ladder-name.p2 { color: var(--color-success); }
+  .ladder-hint {
+    font-size: 12px;
+    color: var(--color-neutral);
+    text-align: center;
+    opacity: 0.6;
+  }
+  canvas {
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-subtle);
+    touch-action: none;
+    cursor: pointer;
+  }
+  canvas:active { cursor: grabbing; }
+</style>
+</head>
+<body>
+
+<div class="title">🪜 梯一把</div>
+<div class="subtitle">LADDER MASTER</div>
+
+<div class="test-area">
+
+  <div id="modeSelect" class="mode-select">
+    <button class="btn btn-primary" onclick="startLadderSolo()">🎯 单人模式</button>
+    <button class="btn btn-danger"  onclick="showLadderBoSelect()">⚔️ 双人Battle</button>
+  </div>
+
+  <div id="boSelect" class="bo-select hidden">
+    <span class="bo-label">选择赛制：</span>
+    <button class="bo-btn" data-bo="1">BO1</button>
+    <button class="bo-btn" data-bo="3">BO3</button>
+    <button class="bo-btn" data-bo="5">BO5</button>
+    <button class="bo-btn" data-bo="7">BO7</button>
+    <button class="bo-btn active" data-bo="-1">♾️无限</button>
+    <button class="btn btn-ghost" style="padding:6px 14px;font-size:13px;" onclick="backToLadderMenu()">← 返回</button>
+  </div>
+
+  <div id="gameContainer" class="game-container hidden">
+
+    <div id="roundInfo"      class="round-info hidden"></div>
+
+    <div id="scoreBoard" class="score-board hidden">
+      <div class="score-item">
+        <div class="score-name p1-color">玩家1</div>
+        <div class="score-value p1-score" id="p1Score">0</div>
+      </div>
+      <div class="score-divider">:</div>
+      <div class="score-item">
+        <div class="score-name p2-color">玩家2</div>
+        <div class="score-value p2-score" id="p2Score">0</div>
+      </div>
+    </div>
+
+    <div id="flowTip" class="flow-tip">点击开始按钮进入游戏</div>
+
+    <div id="ladderArea" class="ladder-area hidden"></div>
+
+    <div id="feedbackText" class="feedback-text"></div>
+    <div id="progressText" class="progress"></div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+      <button id="btnStart"   class="btn btn-success"  onclick="startLadderRound()">▶ 开始</button>
+      <button id="btnConfirm" class="btn btn-primary hidden" onclick="confirmLadder()">✓ 确定</button>
+      <button id="btnNext"    class="btn btn-warning hidden" onclick="nextLadderRound()">▶ 下一回合</button>
+      <button id="btnBack"    class="btn btn-ghost"    onclick="backToLadderMenu()">← 返回菜单</button>
+    </div>
+
+    <div id="resultContainer" class="result-container hidden"></div>
+  </div>
+
+  <div id="ruleTip" class="rule-tip">
+    <strong style="color:#ccc;">规则：</strong><br>
+    • <strong>单人模式</strong>：屏幕上出现起点和目标点，凭肉眼判断两点水平距离，长按画布向上拉伸梯子，松手后梯子自动放倒并结算<br>
+    • <strong>双人Battle</strong>：双方共享同一目标，各自拉伸梯子，都松手后自动结算，更接近目标者赢<br>
+    • <strong>操作</strong>：按住鼠标/手指在画布上，梯子从起点向上伸长；松手后梯子顺时针旋转90°倒下<br>
+    • 超过500px不再增长；最终以梯子水平投影长度与目标距离的差值绝对值评分<br>
+    • 评价：误差 ≤3px <span class="text-skyblue">S+</span> | ≤10px <span class="text-orange">S</span> | ≤25px <span class="text-purple">A</span> | ≤60px <span class="text-blue">B</span> | ≤100px <span class="text-red">C</span> | >100px <span class="text-gray">D</span>
+  </div>
+</div>
+
+<div id="modalOverlay" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div id="modalTitle" class="modal-title"></div>
+    <div id="modalBody"  class="modal-body"></div>
+    <button class="btn btn-primary" onclick="closeLadderModal()">了解</button>
+  </div>
+</div>
+
+<script src="../js/ladder.js"></script>
+</body>
+</html>
