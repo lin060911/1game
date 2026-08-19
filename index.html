@@ -1,151 +1,77 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" sizes="32 * 32" href="image/1.png">
-    <title>来一把</title>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        }
-
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #121212, #1e1e1e);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #ffffff;
-            padding: 20px;
-            user-select: none;
-        }
-
-        .title {
-            font-size: 48px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: #f5f5f5;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            text-align: center;
-        }
-
-        .subtitle {
-            font-size: 16px;
-            color: #999999;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .nav-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            width: 100%;
-            max-width: 900px;
-        }
-
-        .nav-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 4px solid rgba(255, 255, 255, 0.15);
-            border-radius: 16px;
-            padding: 24px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-
-        .nav-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px #0084ff;
-            border-color: #0062ff;
-        }
-
-        .nav-icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-        }
-
-        .nav-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #1a90ff;
-            margin-bottom: 6px;
-        }
-
-        .nav-desc {
-            font-size: 13px;
-            color: #999999;
-            line-height: 1.4;
-        }
-
-        .footer {
-            margin-top: 40px;
-            font-size: 12px;
-            color: #666666;
-            text-align: center;
-        }
-
-        @media (max-width: 600px) {
-            .title {
-                font-size: 26px;
-            }
-
-            .nav-icon {
-                font-size: 40px;
-            }
-
-            .nav-title {
-                font-size: 16px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="img/1.png">
+  <title>来一把</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .nav-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 900px;
+    }
+    .nav-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 4px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 24px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .nav-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px #0084ff;
+      border-color: #0062ff;
+    }
+    .nav-icon { font-size: 48px; margin-bottom: 12px; }
+    .nav-title { font-size: 18px; font-weight: 600; color: #1a90ff; margin-bottom: 6px; }
+    .nav-desc { font-size: 13px; color: #999999; line-height: 1.4; }
+    .footer { margin-top: 40px; font-size: 12px; color: #666666; text-align: center; }
+    @media (max-width: 600px) {
+      .title { font-size: 26px; }
+      .nav-icon { font-size: 40px; }
+      .nav-title { font-size: 16px; }
+    }
+  </style>
 </head>
 <body>
+  <h1 class="title">🎲 来一把!</h1>
+  <p class="subtitle">选择下方项目开始游戏</p>
 
-    <h1 class="title">🎲 来一把!</h1>
-    <p class="subtitle">选择下方项目开始游戏</p>
-
-    <div class="nav-container">
-            <div class="nav-card" onclick="window.open('https://lin060911.github.io/1game/WATER','_blank')">
-                <div class="nav-icon">💧</div>
-                <div class="nav-title">水一把</div>
-                <div class="nav-desc">用无刻度杯子接住目标水位</div>
-            </div>    
-            <div class="nav-card" onclick="window.open('https://lin060911.github.io/1game/ANGLE','_blank')">
-                <div class="nav-icon">📐</div>
-                <div class="nav-title">角一把</div>
-                <div class="nav-desc">用无刻度量角器得到目标角度</div>
-            </div>
-            <div class="nav-card" onclick="window.open('https://lin060911.github.io/1game/COLOR','_blank')">
-                <div class="nav-icon">🌈</div>
-                <div class="nav-title">色一把</div>
-                <div class="nav-desc">用取色器得到目标颜色</div>
-            </div>
-            <div class="nav-card" onclick="window.open('https://lin060911.github.io/1game/SECOND','_blank')">
-                <div class="nav-icon">⏱️</div>
-                <div class="nav-title">秒一把</div>
-                <div class="nav-desc">用默数得到目标时间</div>
-            </div>
-
-             
-            <div class="nav-card" onclick="location.href='#'">
-                <div class="nav-icon">🗿</div>
-                <div class="nav-title">敬请期待</div>
-                <div class="nav-desc">更多内容开发中</div>
-            </div>
+  <div class="nav-container">
+    <div class="nav-card" onclick="window.open('WATER/index.html','_blank')">
+      <div class="nav-icon">💧</div>
+      <div class="nav-title">水一把</div>
+      <div class="nav-desc">用无刻度杯子接住目标水位</div>
     </div>
-
-    <div class="footer">
-        © 2026 1game · L1Nzy
+    <div class="nav-card" onclick="window.open('ANGLE/index.html','_blank')">
+      <div class="nav-icon">📐</div>
+      <div class="nav-title">角一把</div>
+      <div class="nav-desc">用无刻度量角器得到目标角度</div>
     </div>
+    <div class="nav-card" onclick="window.open('COLOR/index.html','_blank')">
+      <div class="nav-icon">🌈</div>
+      <div class="nav-title">色一把</div>
+      <div class="nav-desc">用取色器得到目标颜色</div>
+    </div>
+    <div class="nav-card" onclick="window.open('SECOND/index.html','_blank')">
+      <div class="nav-icon">⏱️</div>
+      <div class="nav-title">秒一把</div>
+      <div class="nav-desc">用默数得到目标时间</div>
+    </div>
+    <div class="nav-card" onclick="location.href='#'">
+      <div class="nav-icon">🗿</div>
+      <div class="nav-title">敬请期待</div>
+      <div class="nav-desc">更多内容开发中</div>
+    </div>
+  </div>
 
+  <div class="footer">© 2026 1game · L1Nzy</div>
 </body>
 </html>
