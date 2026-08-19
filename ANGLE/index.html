@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="../img/A.png">
+  <title>角一把</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .target-display {
+      font-size: 52px;
+      font-weight: 800;
+      color: var(--color-warning);
+      text-align: center;
+      margin: 8px 0;
+      letter-spacing: 2px;
+      text-shadow: 0 0 20px rgba(255, 218, 70, 0.3);
+    }
+    .protractor-area {
+      display: flex;
+      gap: 40px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 16px 0;
+    }
+    .protractor-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .protractor-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ccc;
+      letter-spacing: 1px;
+    }
+    .protractor-name.p1 { color: var(--color-accent); }
+    .protractor-name.p2 { color: var(--color-success); }
+    .canvas-container { position: relative; }
+    canvas {
+      border-radius: 50%;
+      cursor: grab;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border-subtle);
+    }
+    canvas:active { cursor: grabbing; }
+    @media (max-width: 960px) {
+      .target-display { font-size: 40px; }
+      .protractor-area { gap: 20px; }
+    }
+    @media (max-width: 640px) {
+      .target-display { font-size: 34px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="title">📐 角一把</div>
+  <div class="subtitle">ANGLE MASTER</div>
+
+  <div class="test-area">
+    <div id="modeSelect" class="mode-select">
+      <button class="btn btn-primary" onclick="startSolo()">🎯 单人模式</button>
+      <button class="btn btn-danger" onclick="showBoSelect()">⚔️ 双人Battle</button>
+    </div>
+
+    <div id="boSelect" class="bo-select hidden">
+      <span class="bo-label">选择赛制：</span>
+      <button class="bo-btn" data-bo="1">BO1</button>
+      <button class="bo-btn" data-bo="3">BO3</button>
+      <button class="bo-btn" data-bo="5">BO5</button>
+      <button class="bo-btn" data-bo="7">BO7</button>
+      <button class="bo-btn active" data-bo="-1">♾️无限</button>
+      <button class="btn btn-ghost" style="padding:6px 14px;font-size:13px;" onclick="backToModeSelect()">← 返回</button>
+    </div>
+
+    <div id="gameContainer" class="game-container hidden">
+      <div id="targetLabel" class="target-label hidden">🎯 目标角度</div>
+      <div id="targetDisplay" class="target-display hidden">--°</div>
+      <div id="roundInfo" class="round-info hidden"></div>
+
+      <div id="scoreBoard" class="score-board hidden">
+        <div class="score-item">
+          <div class="score-name p1-color">玩家1</div>
+          <div class="score-value p1-score" id="p1Score">0</div>
+        </div>
+        <div class="score-divider">:</div>
+        <div class="score-item">
+          <div class="score-name p2-color">玩家2</div>
+          <div class="score-value p2-score" id="p2Score">0</div>
+        </div>
+      </div>
+
+      <div id="flowTip" class="flow-tip">点击开始按钮进入游戏</div>
+      <div id="protractorArea" class="protractor-area"></div>
+      <div id="feedbackText" class="feedback-text"></div>
+      <div id="progressText" class="progress"></div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+        <button id="btnStart" class="btn btn-success" onclick="startRound()">▶ 开始</button>
+        <button id="btnConfirm" class="btn btn-primary hidden" onclick="confirmAngle()">✓ 确定</button>
+        <button id="btnNext" class="btn btn-warning hidden" onclick="nextRound()">▶ 下一回合</button>
+        <button id="btnBack" class="btn btn-ghost" onclick="backToModeSelect()">← 返回菜单</button>
+      </div>
+
+      <div id="resultContainer" class="result-container hidden"></div>
+    </div>
+
+    <div id="ruleTip" class="rule-tip">
+      <strong style="color:#ccc;">规则：</strong><br>
+      • <strong>单人模式</strong>：系统随机生成一个目标角度（0°~360°），你通过调整量角器上的可动边来匹配目标角度，误差越小评价越高<br>
+      • <strong>双人Battle</strong>：两名玩家轮流调整各自的量角器，目标角度相同，误差更小的一方赢得该回合<br>
+      • 拖动量角器上的<strong>圆点</strong>来旋转可动边，点击<strong>确定</strong>提交答案<br>
+      • 评价标准：误差 ≤1° <span class="text-skyblue">S+</span> | ≤3° <span class="text-orange">S</span> | ≤5° <span class="text-purple">A</span> | ≤10° <span class="text-blue">B</span> | ≤20° <span class="text-red">C</span> | >20° <span class="text-gray">D</span>
+    </div>
+  </div>
+
+  <div id="modalOverlay" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div id="modalTitle" class="modal-title"></div>
+      <div id="modalBody" class="modal-body"></div>
+      <button class="btn btn-primary" onclick="closeModal()">了解</button>
+    </div>
+  </div>
+
+  <script src="../js/angle.js"></script>
+</body>
+</html>

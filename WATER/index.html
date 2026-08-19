@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="../img/W.png">
+  <title>水一把</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .target-display {
+      font-size: 52px;
+      font-weight: 800;
+      color: var(--color-warning);
+      text-align: center;
+      margin: 8px 0;
+      letter-spacing: 2px;
+      text-shadow: 0 0 20px rgba(255, 218, 70, 0.3);
+    }
+    .cups-area {
+      display: flex;
+      gap: 50px;
+      align-items: flex-end;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 16px 0;
+    }
+    .cup-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .cup-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ccc;
+      letter-spacing: 1px;
+    }
+    .cup-name.p1 { color: var(--color-accent); }
+    .cup-name.p2 { color: var(--color-success); }
+    .canvas-container { position: relative; }
+    canvas {
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-subtle);
+      touch-action: none;
+    }
+    canvas:active { cursor: grabbing; }
+    .hold-hint {
+      font-size: 12px;
+      color: var(--color-neutral);
+      text-align: center;
+      opacity: 0.6;
+      letter-spacing: 0.5px;
+    }
+    @media (max-width: 960px) {
+      .target-display { font-size: 40px; }
+      .cups-area { gap: 20px; }
+    }
+    @media (max-width: 640px) {
+      .target-display { font-size: 34px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="title">💧 水一把</div>
+  <div class="subtitle">WATER MASTER</div>
+
+  <div class="test-area">
+    <div id="modeSelect" class="mode-select">
+      <button class="btn btn-primary" onclick="startSolo()">🎯 单人模式</button>
+      <button class="btn btn-danger"  onclick="showBoSelect()">⚔️ 双人Battle</button>
+    </div>
+
+    <div id="boSelect" class="bo-select hidden">
+      <span class="bo-label">选择赛制：</span>
+      <button class="bo-btn" data-bo="1">BO1</button>
+      <button class="bo-btn" data-bo="3">BO3</button>
+      <button class="bo-btn" data-bo="5">BO5</button>
+      <button class="bo-btn" data-bo="7">BO7</button>
+      <button class="bo-btn active" data-bo="-1">♾️无限</button>
+      <button class="btn btn-ghost" style="padding:6px 14px;font-size:13px;" onclick="backToModeSelect()">← 返回</button>
+    </div>
+
+    <div id="gameContainer" class="game-container hidden">
+      <div id="targetLabel"   class="target-label hidden">🎯 目标水位</div>
+      <div id="targetDisplay" class="target-display hidden">--%</div>
+      <div id="roundInfo"     class="round-info hidden"></div>
+
+      <div id="scoreBoard" class="score-board hidden">
+        <div class="score-item">
+          <div class="score-name p1-color">玩家1</div>
+          <div class="score-value p1-score" id="p1Score">0</div>
+        </div>
+        <div class="score-divider">:</div>
+        <div class="score-item">
+          <div class="score-name p2-color">玩家2</div>
+          <div class="score-value p2-score" id="p2Score">0</div>
+        </div>
+      </div>
+
+      <div id="flowTip" class="flow-tip">点击开始按钮进入游戏</div>
+      <div id="cupsArea" class="cups-area hidden"></div>
+      <div id="feedbackText" class="feedback-text"></div>
+      <div id="progressText" class="progress"></div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+        <button id="btnStart"   class="btn btn-success"  onclick="startRound()">▶ 开始</button>
+        <button id="btnConfirm" class="btn btn-primary hidden" onclick="confirmWater()">✓ 确定</button>
+        <button id="btnNext"    class="btn btn-warning hidden" onclick="nextRound()">▶ 下一回合</button>
+        <button id="btnBack"    class="btn btn-ghost"    onclick="backToModeSelect()">← 返回菜单</button>
+      </div>
+
+      <div id="resultContainer" class="result-container hidden"></div>
+    </div>
+
+    <div id="ruleTip" class="rule-tip">
+      <strong style="color:#ccc;">规则：</strong><br>
+      • <strong>单人模式</strong>：随机生成目标百分比（0%~100%），长按水杯注水，松手锁定，水位只升不降，尽量接近目标后确定<br>
+      • <strong>双人Battle</strong>：两名玩家分别注水，更接近目标者赢得该回合<br>
+      • <strong>操作</strong>：按住鼠标/手指在杯子上不要松开，水位持续上升，松手即停<br>
+      • 超过100%一律视为100%<br>
+      • 评价：误差 ≤1% <span class="text-skyblue">S+</span> | ≤3% <span class="text-orange">S</span> | ≤5% <span class="text-purple">A</span> | ≤10% <span class="text-blue">B</span> | ≤20% <span class="text-red">C</span> | >20% <span class="text-gray">D</span>
+    </div>
+  </div>
+
+  <div id="modalOverlay" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div id="modalTitle" class="modal-title"></div>
+      <div id="modalBody"  class="modal-body"></div>
+      <button class="btn btn-primary" onclick="closeModal()">了解</button>
+    </div>
+  </div>
+
+  <script src="../js/water.js"></script>
+</body>
+</html>
