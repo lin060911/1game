@@ -63,9 +63,9 @@ function deltaE(r1, g1, b1, r2, g2, b2) {
 
 function getGrade(de) {
   if (de <= 3)  return { label: 'S+', colorClass: 'text-skyblue' };
-  if (de <= 5)  return { label: 'S',  colorClass: 'text-orange'  };
-  if (de <= 8)  return { label: 'A',  colorClass: 'text-purple'  };
-  if (de <= 14) return { label: 'B',  colorClass: 'text-blue'    };
+  if (de <= 7.5)  return { label: 'S',  colorClass: 'text-orange'  };
+  if (de <= 12.5)  return { label: 'A',  colorClass: 'text-purple'  };
+  if (de <= 17.5) return { label: 'B',  colorClass: 'text-blue'    };
   if (de <= 20) return { label: 'C',  colorClass: 'text-red'     };
   return              { label: 'D',  colorClass: 'text-gray'    };
 }
