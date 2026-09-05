@@ -18,6 +18,8 @@ const randFloat = (a, b) => Math.random() * (b - a) + a;
 const clamp     = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const fmt       = s => s.toFixed(3) + 's';
 
+const PLAYER_KEY = { 1: 'F', 2: 'J' };
+
 function getGrade(err) {
   if (err <= 0.1) return { label: 'S+', colorClass: 'text-skyblue' };
   if (err <= 0.3) return { label: 'S',  colorClass: 'text-orange'  };
@@ -63,6 +65,7 @@ function startSolo() {
   setFlowTip('点击「开始」准备游戏');
   $('btnStart').classList.remove('hidden');
   $('btnNext').classList.add('hidden');
+  refreshDots();
 }
 
 function startBattle(bo) {
@@ -74,6 +77,7 @@ function startBattle(bo) {
   setFlowTip('双人 Battle 已就绪！点击「开始」准备');
   $('btnStart').classList.remove('hidden');
   $('btnNext').classList.add('hidden');
+  refreshDots();
 }
 
 document.querySelectorAll('.bo-btn').forEach(btn => {
@@ -126,27 +130,117 @@ function initBattleUI() {
   buildPlayers(2);
 }
 
+
 function buildPlayers(count) {
   const area = $('playersArea');
   area.innerHTML = '';
   for (let i = 0; i < count; i++) {
     const p    = i + 1;
     const cls  = p === 1 ? 'p1' : 'p2';
-    const key  = p === 1 ? 'F'  : 'J';
+    const key  = PLAYER_KEY[p];
     const wrap = document.createElement('div');
     wrap.className = 'player-panel';
+    wrap.dataset.player = p;
     wrap.innerHTML = `
       <div class="player-name ${cls}">玩家 ${p}</div>
-      <div class="status-dot idle" id="dot_p${p}">
-        <span class="dot-label">待机</span>
+      <div class="status-dot idle" id="dot_p${p}" data-player="${p}" role="button" aria-label="玩家${p} 计时操作区">
+        <span class="dot-label"></span>
       </div>
-      <div class="key-hint">${count === 1 ? '按 <kbd>空格</kbd> 操作' : `按 <kbd>${key}</kbd> 操作`}</div>`;
+      <div class="key-hint">${count === 1
+        ? '按 <kbd>空格</kbd> 或点击圆点'
+        : `按 <kbd>${key}</kbd> 或点击圆点`}</div>`;
     area.appendChild(wrap);
+    bindTapArea(wrap, p);
+  }
+  [1, 2].forEach(renderDot);
+}
+
+function bindTapArea(panel, p) {
+  panel.addEventListener('pointerdown', e => {
+    if (e.pointerType !== 'mouse') e.preventDefault();
+    if (e.button != null && e.button !== 0) return;
+    onPlayerAction(p, 'tap');
+  });
+  if (!window.PointerEvent) {
+    panel.addEventListener('touchstart', e => {
+      e.preventDefault();
+      onPlayerAction(p, 'tap');
+    }, { passive: false });
+    panel.addEventListener('mousedown', e => {
+      if (e.button === 0) onPlayerAction(p, 'tap');
+    });
   }
 }
 
+function isStartable() {
+  const btn = $('btnStart');
+  return !!btn
+    && !btn.classList.contains('hidden')
+    && !$('gameContainer').classList.contains('hidden');
+}
+
+function onPlayerAction(p, via) {
+  const phase = getPlayerPhase(p);
+  if      (phase === 'target')  beginCount(p);
+  else if (phase === 'running') stopWatch(p);
+  else if (isStartable())       firstPress();
+  else {
+    bumpPanel(p);
+    if (via === 'tap') {
+      setFlowTip(state.mode === 'battle'
+        ? '本回合已结束，等待「下一回合」继续'
+        : '本回合已结束，点击「下一回合」继续');
+    }
+  }
+  buzz();
+}
+
+function bumpPanel(p) {
+  const panel = $('dot_p' + p) && $('dot_p' + p).closest('.player-panel');
+  if (!panel) return;
+  panel.classList.remove('shake');
+  void panel.offsetWidth;
+  panel.classList.add('shake');
+  setTimeout(() => panel.classList.remove('shake'), 320);
+}
+
+function buzz() {
+  try { if (navigator.vibrate) navigator.vibrate(8); } catch (_) {}
+}
+
+function actionKey(p) {
+  return state.mode === 'solo' ? '空格' : PLAYER_KEY[p];
+}
+
 function getPlayerPhase(p) { return p === 1 ? state.p1Phase : state.p2Phase; }
-function setPlayerPhase(p, val) { if (p === 1) state.p1Phase = val; else state.p2Phase = val; }
+
+const refreshDots = () => [1, 2].forEach(renderDot);
+
+function setPlayerPhase(p, val) {
+  if (p === 1) state.p1Phase = val; else state.p2Phase = val;
+  renderDot(p);
+}
+
+function renderDot(p) {
+  const d = $('dot_p' + p);
+  if (!d) return;
+  const phase = getPlayerPhase(p);
+  const key   = actionKey(p);
+  let cls = 'status-dot', main = '待机', sub = '';
+
+  if      (phase === 'target')  { cls += ' ready pressable';   main = `点击 / ${key}`; sub = '开始计时'; }
+  else if (phase === 'running') { cls += ' running pressable'; main = `点击 / ${key}`; sub = '掐表';     }
+  else if (phase === 'stopped') { cls += ' stopped';           main = '已停'; }
+  else if (isStartable())       { cls += ' idle pressable';    main = '点击 / 开始回合'; }
+  else                          { cls += ' idle';              main = '待机'; }
+
+  d.className = cls;
+  d.querySelector('.dot-label').innerHTML =
+    `<span class="dl-main">${main}</span>` + (sub ? `<span class="dl-sub">${sub}</span>` : '');
+
+  const panel = d.closest('.player-panel');
+  if (panel) panel.classList.toggle('pressable', cls.includes('pressable'));
+}
 
 function firstPress() {
   state.round++;
@@ -163,13 +257,7 @@ function firstPress() {
   $('targetDisplay').textContent = fmt(state.targetSec);
   $('playersArea').classList.remove('hidden');
 
-  [1, 2].forEach(p => {
-    const d = $('dot_p' + p);
-    if (d) {
-      d.className = 'status-dot ready';
-      d.querySelector('.dot-label').textContent = '准备';
-    }
-  });
+  [1, 2].forEach(renderDot);
 
   $('btnStart').classList.add('hidden');
   $('btnNext').classList.add('hidden');
@@ -178,10 +266,10 @@ function firstPress() {
   $('feedbackText').textContent = '';
 
   if (state.mode === 'solo') {
-    setFlowTip('⏱️ 按 空格键 开始计时');
+    setFlowTip('⏱️ 按 空格键 或点击圆点 开始计时');
     $('progressText').textContent = `第 ${state.round} 回合`;
   } else {
-    setFlowTip('⏱️ P1按 [F]、P2按 [J] 开始计时');
+    setFlowTip('⏱️ P1按 [F]、P2按 [J]，或各自点击圆点开始');
     $('roundInfo').classList.remove('hidden');
     $('scoreBoard').classList.remove('hidden');
     $('roundInfo').textContent = state.bo > 0
@@ -198,14 +286,10 @@ function beginCount(p) {
   if (p === 1) { state.p1Running = true;  state.p1Start = performance.now(); state.p1Started = true; }
   else         { state.p2Running = true;  state.p2Start = performance.now(); state.p2Started = true; }
 
-  const d = $('dot_p' + p);
-  d.className = 'status-dot running';
-  d.querySelector('.dot-label').textContent = '默数中';
-
   if (state.mode === 'solo') {
-    setFlowTip('⏱️ 计时中！默数到目标时长后按 空格键 掐表');
+    setFlowTip('⏱️ 计时中！默数到目标时长后，按 空格键 或点击圆点掐表');
   } else {
-    setFlowTip('⏱️ 计时中！各自默数，按自己的键掐表');
+    setFlowTip('⏱️ 计时中！各自默数，按自己的键或点击自己的圆点掐表');
   }
 }
 
@@ -217,15 +301,11 @@ function stopWatch(p) {
   if (p === 1) { state.p1Running = false; state.p1Elapsed = (performance.now() - state.p1Start) / 1000; }
   else         { state.p2Running = false; state.p2Elapsed = (performance.now() - state.p2Start) / 1000; }
 
-  setPlayerPhase(p, 'idle');
-  const d = $('dot_p' + p);
-  d.className = 'status-dot stopped';
-  d.querySelector('.dot-label').textContent = '已停';
+  setPlayerPhase(p, 'stopped');
 
   if (state.mode === 'solo') {
     setTimeout(() => confirmResult(), 80);
   } else {
-    const other = p === 1 ? 2 : 1;
     const otherStarted = p === 1 ? state.p2Started : state.p1Started;
     const otherRunning = p === 1 ? state.p2Running : state.p1Running;
 
@@ -272,12 +352,7 @@ function nextRound() {
   state.p2Started = false;
 
   [1, 2].forEach(p => {
-    const d = $('dot_p' + p);
-    if (d) {
-      d.className = 'status-dot idle';
-      d.querySelector('.dot-label').textContent = '待机';
-    }
-    setPlayerPhase(p, 'idle');
+    if ($('dot_p' + p)) setPlayerPhase(p, 'idle');
   });
 
   setFlowTip('点击「开始」进入下一回合');
@@ -373,6 +448,7 @@ function resetGame() {
   state.p2Started = false;
   $('p1Score').textContent = '0';
   $('p2Score').textContent = '0';
+  [1, 2].forEach(renderDot);
 }
 
 document.addEventListener('keydown', e => {
@@ -388,8 +464,5 @@ document.addEventListener('keydown', e => {
   }
 
   if (!player) return;
-
-  const phase = getPlayerPhase(player);
-  if      (phase === 'target')  beginCount(player);
-  else if (phase === 'running') stopWatch(player);
+  onPlayerAction(player, 'key');
 });
