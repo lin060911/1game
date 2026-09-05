@@ -43,6 +43,13 @@
     }
     .player-name.p1 { color: var(--color-accent); }
     .player-name.p2 { color: var(--color-success); }
+    .player-panel {
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      cursor: default;
+    }
     .status-dot {
       width: 140px;
       height: 140px;
@@ -50,18 +57,52 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+      transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .player-panel.pressable { cursor: pointer; border-color: var(--border-medium); }
+    .player-panel.pressable:hover  .status-dot { transform: scale(1.05); }
+    .player-panel.pressable:active .status-dot { transform: scale(0.94); }
+    .status-dot.pressable { animation: dotBreath 1.4s ease-in-out infinite; }
+    @keyframes dotBreath {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.005); }
+    }
+    .player-panel.shake { animation: panelShake 0.28s ease; }
+    @keyframes panelShake {
+      0%, 100% { transform: translateX(0); }
+      25%      { transform: translateX(-6px); }
+      75%      { transform: translateX(6px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .status-dot.pressable { animation: none; }
+      .player-panel.pressable:hover .status-dot,
+      .player-panel.pressable:active .status-dot { transform: none; }
     }
     .status-dot.idle    { background: rgba(255, 255, 255, 0.06); border: 4px solid var(--border-medium); }
     .status-dot.ready   { background: rgba(255, 218, 70, 0.12); border: 4px solid var(--color-warning); box-shadow: 0 0 40px rgba(255, 218, 70, 0.35); }
     .status-dot.running { background: rgba(63, 136, 253, 0.12); border: 4px solid var(--color-accent);  box-shadow: 0 0 40px rgba(63, 136, 253, 0.35); }
     .status-dot.stopped { background: rgba(0, 255, 136, 0.12);  border: 4px solid var(--color-success);  box-shadow: 0 0 40px rgba(0, 255, 136, 0.35); }
     .dot-label {
-      font-size: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-align: center;
+    }
+    .dot-label .dl-main {
+      font-size: 17px;
       color: var(--color-neutral);
       font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .dot-label .dl-sub {
+      font-size: 13px;
+      font-weight: 700;
       letter-spacing: 2px;
-      text-align: center;
+      color: var(--color-neutral);
+      opacity: 0.85;
     }
     .status-dot.ready   .dot-label { color: var(--color-warning); }
     .status-dot.running .dot-label { color: var(--color-accent); }
@@ -149,10 +190,10 @@
     <div id="ruleTip" class="rule-tip">
       <strong style="color:#ccc;">规则：</strong><br>
       • <strong>操作流程</strong>：点开始展示<strong>目标时间</strong>，按对应键位<strong>开始计时</strong>，再次按键 <strong>掐表</strong><br>
-      • <strong>单人模式</strong>：用 <kbd>空格</kbd> 完成「展示目标 / 开始计时 / 掐表」三步<br>
-      • <strong>双人Battle</strong>：<strong>玩家1按 F、玩家2按 J</strong>，各自独立计时，误差更小者赢<br>
-      • <strong>精度</strong>：成绩精确到毫秒（0.001s），误差越小评价越高<br>
-      • 评价：误差 ≤0.1s <span class="text-skyblue">S+</span> | ≤0.3s <span class="text-orange">S</span> | ≤0.5s <span class="text-purple">A</span> | ≤1s <span class="text-blue">B</span> | ≤2s <span class="text-red">C</span> | ＞2s <span class="text-gray">D</span>
+      • <strong>单人模式</strong>：用 <kbd>空格</kbd> 或点击圆点，完成「开始计时 / 掐表」两步<br>
+      • <strong>双人Battle</strong>：<strong>玩家1按 F、玩家2按 J</strong>（或各自点自己的圆点），各自独立计时，误差更小者赢<br>
+      • <strong>手机/触屏</strong>：直接点圆点即可，采用 pointerdown 触发，无 300ms 点击延迟<br>
+      • <strong>评价</strong> ：误差 ≤0.1s <span class="text-skyblue">S+</span> | ≤0.3s <span class="text-orange">S</span> | ≤0.5s <span class="text-purple">A</span> | ≤1s <span class="text-blue">B</span> | ≤2s <span class="text-red">C</span> | ＞2s <span class="text-gray">D</span>
     </div>
   </div>
 
